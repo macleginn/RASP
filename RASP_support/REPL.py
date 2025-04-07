@@ -1,3 +1,5 @@
+import os
+
 from antlr4.error.ErrorListener import ErrorListener
 from antlr4 import CommonTokenStream, InputStream
 from collections.abc import Iterable
@@ -62,6 +64,26 @@ def formatstr(res):
     return str(res)
 
 
+def locate_rasplib():
+    '''
+    Assuming that we start from a directory inside the RASP kernel repo,
+    walk up to the root directory of the repo and check if we can locate
+    rasplib. We don't know the name of the root directory but we know that it should
+    have 'src' in it. Return the path to rasplib or raise an error if it cannot be found.
+    '''
+    path_to_rasplib = os.path.join(
+        "src", "rasp_kernel", "RASP", "RASP_support", "rasplib")
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    while True:
+        candidate_path_no_extension = os.path.join(current_dir, path_to_rasplib)
+        if os.path.exists(candidate_path_no_extension + '.rasp'):
+            return candidate_path_no_extension
+        if os.path.exists(os.path.join(current_dir, "src")):
+            raise FileNotFoundError(
+                f"Reached {current_dir} but could not find the path to rasplib.rasp.")
+        current_dir = os.path.dirname(current_dir)
+
+
 class REPL:
     def __init__(self):
         self.env = Environment(name="console")
@@ -82,9 +104,7 @@ class REPL:
         # env, then load the base libraries to build the actual base env
         # make the library-loaded variables and functions not-overwriteable
         self.env.storing_in_constants = True
-        # for lib in ["RASP_support/rasplib"]:
-        import os
-        path = os.path.join("src", "rasp_kernel", "RASP", "RASP_support", "rasplib")
+        path = locate_rasplib()
         for lib in [path]:
             self.run_given_line("load \"" + lib + "\";")
             self.base_env = self.env.snapshot()
