@@ -15,8 +15,12 @@ liboutspath = libtestspath + "/out"
 curr_path_marker = "[current]"
 
 
-REPL_PATH = "RASP_support/REPL.py"
-RASPLIB_PATH = "RASP_support/rasplib.rasp"
+# REPL_PATH = "RASP_support/REPL.py"
+# RASPLIB_PATH = "RASP_support/rasplib.rasp"
+# Patch the paths so that they work when this package is loaded
+# as a submodule:
+REPL_PATH = os.path.join(os.getcwd(), "src", "RASP", "RASP_support", "REPL.py")
+RASPLIB_PATH = os.path.join(os.getcwd(), "src", "RASP", "RASP_support", "rasplib.rasp")
 
 
 def things_in_path(path):

@@ -82,7 +82,10 @@ class REPL:
         # env, then load the base libraries to build the actual base env
         # make the library-loaded variables and functions not-overwriteable
         self.env.storing_in_constants = True
-        for lib in ["RASP_support/rasplib"]:
+        # for lib in ["RASP_support/rasplib"]:
+        import os
+        path = os.path.join("src", "rasp_kernel", "RASP", "RASP_support", "rasplib")
+        for lib in [path]:
             self.run_given_line("load \"" + lib + "\";")
             self.base_env = self.env.snapshot()
         self.env.storing_in_constants = False
@@ -284,7 +287,9 @@ class REPL:
                 self.show_sequence_examples, self.show_selector_examples = \
                     prev_example_settings
         except FileNotFoundError:
-            raise LoadError("could not find file: " + filename)
+            import os
+            raise LoadError("could not find file: " + filename + ' in ' +
+                            os.getcwd())
 
     def get_tree(self, fromfile=None):
         try:
